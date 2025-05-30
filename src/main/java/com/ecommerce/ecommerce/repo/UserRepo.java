@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository;
 import com.ecommerce.ecommerce.entities.User;
 
 @Repository
-public interface UserRepo extends MongoRepository<User, Long>{
+public interface UserRepo extends MongoRepository<User, String>{
 	User findByName(String name);
 	User findByEmail(String email);
 
