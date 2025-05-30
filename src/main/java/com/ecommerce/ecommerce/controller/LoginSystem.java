@@ -4,138 +4,134 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.ecommerce.ecommerce.entities.User;
-import com.ecommerce.ecommerce.services.AddProfile;
-import com.ecommerce.ecommerce.services.ForgotPassword;
-import com.ecommerce.ecommerce.services.GetProfile;
-import com.ecommerce.ecommerce.services.GetUserDetailsByName;
-import com.ecommerce.ecommerce.services.Login;
-import com.ecommerce.ecommerce.services.Register;
+import com.ecommerce.ecommerce.services.*;
 
 @RestController
 @RequestMapping("/user")
 public class LoginSystem {
-	
-	@Autowired
-	private Register register;
-	
-	@Autowired
-	private Login login;
-	
-	@Autowired
-	private ForgotPassword forgotPassword;
-	
-	@Autowired
-	private GetUserDetailsByName getUserDetailsByNameService;
-	
-	@Autowired
-	private AddProfile addProfileService;
-	
-	@Autowired
-	private GetProfile getProfile;
-	
-	@PostMapping("/login")
-	public ResponseEntity<?> login(@RequestBody User user) {
-	    if (user.getName() == null || user.getPassword() == null) {
-	        return ResponseEntity
-	                .badRequest()
-	                .body(Map.of("error", "Please enter the username and password"));
-	    }
 
-	    String token = login.login(user);
+    @Autowired
+    private Register registerService;
 
-	    if (token == null || token.isEmpty()) {
-	        return ResponseEntity
-	                .status(401)
-	                .body(Map.of("error", "Invalid credentials"));
-	    }
+    @Autowired
+    private Login loginService;
 
-	    User loggedInUser = getUserDetailsByNameService.getUserDetails(user.getName());
+    @Autowired
+    private ForgotPassword forgotPasswordService;
 
-	    Map<String, Object> response = Map.of(
-	        "token", token,
-	        "user", Map.of(
-	            "username", loggedInUser.getName(),
-	            "role", loggedInUser.getRole() 
-	        )
-	    );
+    @Autowired
+    private GetUserDetailsByName getUserDetailsByNameService;
 
-	    return ResponseEntity.ok(response);
-	}
+    @Autowired
+    private AddProfile addProfileService;
 
-	
-	@PostMapping("/register")
-	public String register(@RequestBody User user) {
-		if(user.getName()==null || user.getPassword()==null || user.getEmail() ==null) {
-			return "Please enter the email and name and password !";
-		}else {		
-			String res=register.register(user);
-			return res;
-		}
-	}
-	
-	@PostMapping("/forgotpassword")
-	public String forgotPassword(@RequestBody User user) {
-		if(user.getName()==null || user.getPassword()==null || user.getEmail() ==null) {
-			return "Please enter the email and name and password !";
-		}else {		
-			String res=forgotPassword.forgotPassword(user);
-			return res;
-		}
-	}
-	
-	@PostMapping("/getuserdetailsbyname")
-	public ResponseEntity<?> getUserDetailsByName(@RequestBody Map<String, String> body) {
-	    String name = body.get("name");
+    @Autowired
+    private GetProfile getProfileService;
 
-	    if (name == null || name.trim().isEmpty()) {
-	        return ResponseEntity.status(400).body("Username is required");
-	    }
+    // LOGIN
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody User user) {
+        if (user.getName() == null || user.getPassword() == null) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Please enter username and password"));
+        }
 
-	    User user = getUserDetailsByNameService.getUserDetails(name.trim());
+        String token = loginService.login(user);
+        if (token == null || token.isEmpty()) {
+            return ResponseEntity.status(401).body(Map.of("error", "Invalid credentials"));
+        }
 
-	    if (user == null) {
-	        return ResponseEntity.status(404).body("No data found for the user");
-	    }
+        User loggedInUser = getUserDetailsByNameService.getUserDetails(user.getName());
+        Map<String, Object> response = Map.of(
+            "token", token,
+            "user", Map.of(
+                "username", loggedInUser.getName(),
+                "role", loggedInUser.getRole()
+            )
+        );
 
-	    return ResponseEntity.ok(user);
-	}
+        return ResponseEntity.ok(response);
+    }
 
-	@PostMapping("/addprofile")
-	public ResponseEntity<Map <String,String >> addProfile(@RequestBody Map<String,String> requestBody){
-		String name=requestBody.get("name");
-		String image=requestBody.get("image");
-		 if (name == null || name.trim().isEmpty()) {
-		        return ResponseEntity.badRequest().body(Map.of("error", "Name is required"));
-		    }
-		    if (image == null || image.trim().isEmpty()) {
-		        return ResponseEntity.badRequest().body(Map.of("error", "Image URL is required"));
-		    }
+    // REGISTER
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody User user) {
+        if (user.getName() == null || user.getPassword() == null || user.getEmail() == null) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Please enter name, email, and password"));
+        }
 
-		String result=addProfileService.add(name.trim(), image.trim());
-		 Map<String, String> response = Map.of("message", result);
-		    return ResponseEntity.ok(response);
-	}
-	
-	@PostMapping("/getprofile")
-	public ResponseEntity<?> getProfile(@RequestBody Map<String, String> requestBody) {
-	    String name = requestBody.get("name");
-	    if (name == null || name.trim().isEmpty()) {
-	        return ResponseEntity.badRequest().body("Name is required");
-	    }
+        String result = registerService.register(user);
 
-	    String profile = getProfile.get(name.trim());
-	    if (profile == null) {
-	        return ResponseEntity.status(404).body("Profile not found for user: " + name);
-	    }
-	    return ResponseEntity.ok(profile);
-	}
+        if (result.equalsIgnoreCase("Registration success !")) {
+            return ResponseEntity.ok(Map.of("message", result));
+        } else {
+            return ResponseEntity.status(400).body(Map.of("error", result));
+        }
+    }
 
-	
-	
+    // FORGOT PASSWORD
+    @PostMapping("/forgotpassword")
+    public ResponseEntity<?> forgotPassword(@RequestBody User user) {
+        if (user.getName() == null || user.getPassword() == null || user.getEmail() == null) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Please enter name, email, and new password"));
+        }
+
+        String result = forgotPasswordService.forgotPassword(user);
+        return ResponseEntity.ok(Map.of("message", result));
+    }
+
+    // GET USER DETAILS BY NAME
+    @PostMapping("/getuserdetailsbyname")
+    public ResponseEntity<?> getUserDetailsByName(@RequestBody Map<String, String> body) {
+        String name = body.get("name");
+
+        if (name == null || name.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Username is required"));
+        }
+
+        User user = getUserDetailsByNameService.getUserDetails(name.trim());
+
+        if (user == null) {
+            return ResponseEntity.status(404).body(Map.of("error", "No data found for user"));
+        }
+
+        return ResponseEntity.ok(user);
+    }
+
+    // ADD PROFILE
+    @PostMapping("/addprofile")
+    public ResponseEntity<?> addProfile(@RequestBody Map<String, String> body) {
+        String name = body.get("name");
+        String image = body.get("image");
+
+        if (name == null || name.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Name is required"));
+        }
+        if (image == null || image.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Image URL is required"));
+        }
+
+        String result = addProfileService.add(name.trim(), image.trim());
+        return ResponseEntity.ok(Map.of("message", result));
+    }
+
+    // GET PROFILE
+    @PostMapping("/getprofile")
+    public ResponseEntity<?> getProfile(@RequestBody Map<String, String> body) {
+        String name = body.get("name");
+
+        if (name == null || name.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Name is required"));
+        }
+
+        String profile = getProfileService.get(name.trim());
+
+        if (profile == null) {
+            return ResponseEntity.status(404).body(Map.of("error", "Profile not found"));
+        }
+
+        return ResponseEntity.ok(Map.of("image", profile));
+    }
 }
