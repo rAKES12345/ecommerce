@@ -1,12 +1,8 @@
-# Stage 1: Build the Spring Boot app using Maven
-FROM maven:3.8.7-eclipse-temurin-17 AS build
+FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
-COPY . .
-RUN mvn clean package -DskipTests
+COPY target/ecommerce-0.0.1-SNAPSHOT.jar app.jar
 
-# Stage 2: Run the built app with a lightweight image
-FROM eclipse-temurin:17-jdk-jammy
-WORKDIR /app
-COPY --from=build /app/target/*.jar app.jar
+# Expose port 8080 (Spring Boot default, but you will bind dynamically)
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+
+ENTRYPOINT ["java","-jar","app.jar"]
