@@ -6,9 +6,5 @@ services:
     branch: delivery-module-pending
     plan: free
     autoDeploy: true
-    healthCheckPath: /
     dockerfilePath: Dockerfile
-    envVars:
-      - key: SPRING_PROFILES_ACTIVE
-        value: prod
-      # Add more environment variables here as needed
+    healthCheckPath: /
