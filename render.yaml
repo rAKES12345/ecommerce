@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: ecommerce-backend
+    env: docker
+    repo: https://github.com/rAKES12345/ecommerce
+    branch: delivery-module-pending
+    plan: free
+    autoDeploy: true
+    healthCheckPath: /
+    dockerfilePath: Dockerfile
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      # Add more environment variables here as needed
