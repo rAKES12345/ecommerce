@@ -17,6 +17,7 @@ import com.ecommerce.ecommerce.entities.Order;
 import com.ecommerce.ecommerce.services.AddOrder;
 import com.ecommerce.ecommerce.services.DeleteOrder;
 import com.ecommerce.ecommerce.services.GetAllOrders;
+import com.ecommerce.ecommerce.services.GetOrderById;
 import com.ecommerce.ecommerce.services.GetSellersOrders;
 import com.ecommerce.ecommerce.services.GetUsersOrders;
 import com.ecommerce.ecommerce.services.TotalSellersOreders;
@@ -44,6 +45,9 @@ public class OrderSystem {
 	private GetAllOrders getAllOrderService;
 	
 	@Autowired
+	private GetOrderById getOrderByIdService;
+	
+	@Autowired
 	private UpdateOrderStatusService updateOrderStatusService;
 
 	@PostMapping("/add")
@@ -69,6 +73,27 @@ public class OrderSystem {
 		List<Order> orders=getAllOrderService.get();
 		return ResponseEntity.ok(orders);
 	}
+	
+	 @PostMapping("/getorderbyid")
+	    public ResponseEntity<?> getOrderById(@RequestBody Map<String, String> request) {
+	        String id = request.get("id");
+
+	        if (id == null || id.isEmpty()) {
+	            return ResponseEntity.badRequest().body("Order ID is required.");
+	        }
+
+	        try {
+	            Order order = getOrderByIdService.getOrderById(id);
+	            if (order != null) {
+	                return ResponseEntity.ok(order);
+	            } else {
+	                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Order not found with ID: " + id);
+	            }
+	        } catch (Exception e) {
+	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                                 .body("Error retrieving order: " + e.getMessage());
+	        }
+	    }
 	
 	@PostMapping("/getusersorders")
 	public ResponseEntity<?> getUsersOrders(@RequestBody Map<String, String> request) {
