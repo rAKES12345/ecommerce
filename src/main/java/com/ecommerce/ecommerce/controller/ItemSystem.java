@@ -65,8 +65,27 @@ public class ItemSystem{
 	    
 
 	    @PostMapping("/add")
-	    public String addItem(@RequestBody Item item) {
-	        return addItemService.addItem(item);
+	    public ResponseEntity<String> addItem(@RequestBody Item item) {
+	        String result = addItemService.addItem(item);
+
+	        switch (result) {
+	            case "INVALID_SELLER":
+	                return ResponseEntity
+	                    .badRequest()
+	                    .body("Invalid seller ID. Cannot add item.");
+	            case "DUPLICATE_ITEM":
+	                return ResponseEntity
+	                    .badRequest()
+	                    .body("Item with the same name already exists");
+	            case "SUCCESS":
+	                return ResponseEntity
+	                    .status(HttpStatus.CREATED)
+	                    .body("Item saved successfully");
+	            default:
+	                return ResponseEntity
+	                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                    .body("Unknown error occurred");
+	        }
 	    }
 	    
 	    @PostMapping("/getitemsbysellerid")

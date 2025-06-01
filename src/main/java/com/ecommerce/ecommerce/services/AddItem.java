@@ -9,7 +9,6 @@ import com.ecommerce.ecommerce.entities.Item;
 import com.ecommerce.ecommerce.entities.Seller;
 import com.ecommerce.ecommerce.repo.ItemRepo;
 import com.ecommerce.ecommerce.repo.SellerRepo;
-
 @Service
 public class AddItem {
 
@@ -19,20 +18,21 @@ public class AddItem {
     @Autowired
     private SellerRepo sellerRepo;  
 
+    // Return codes or simple info, no ResponseEntity here
     public String addItem(Item item) {
         // Check if seller exists
         Optional<Seller> seller = sellerRepo.findById(item.getSellerId());
         if (!seller.isPresent()) {
-            return "Invalid seller ID. Cannot add item.";
+            return "INVALID_SELLER";
         }
 
         // Check if item with the same name exists
         Optional<Item> existingItem = itemRepo.findByName(item.getName());
         if (existingItem.isPresent()) {
-            return "Item with the same name already exists";
+            return "DUPLICATE_ITEM";
         }
 
         itemRepo.save(item);
-        return "Item saved successfully";
+        return "SUCCESS";
     }
 }

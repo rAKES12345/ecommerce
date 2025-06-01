@@ -23,6 +23,9 @@ import com.ecommerce.ecommerce.services.GetUsersOrders;
 import com.ecommerce.ecommerce.services.TotalSellersOreders;
 import com.ecommerce.ecommerce.services.UpdateOrderStatusService;
 
+import com.razorpay.RazorpayClient;
+import org.json.JSONObject;
+
 @RestController
 @RequestMapping("/order")
 public class OrderSystem {
@@ -50,6 +53,42 @@ public class OrderSystem {
 	@Autowired
 	private UpdateOrderStatusService updateOrderStatusService;
 
+	@PostMapping("/create-payment-order")
+	public ResponseEntity<?> createPaymentOrder(@RequestBody Map<String, Object> request) {
+	    try {
+	        RazorpayClient client = new RazorpayClient("rzp_test_M6EaAfst6tUkui", "2nqRrDSvGjaxaCqxLkPYKMWn");
+
+	        Object amountObj = request.get("amount");
+	        if (amountObj == null) {
+	            return ResponseEntity.badRequest().body("Amount is required");
+	        }
+
+	        int amount = (int) amountObj;
+
+	        JSONObject options = new JSONObject();
+	        options.put("amount", amount * 100); // Amount in paise
+	        options.put("currency", "INR");
+	        options.put("receipt", "order_rcptid_11");
+	        options.put("payment_capture", 1);
+
+	        com.razorpay.Order razorpayOrder = client.orders.create(options);
+
+	        return ResponseEntity.ok(razorpayOrder.toString());
+	    } catch (Exception e) {
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                             .body("Error creating payment order: " + e.getMessage());
+	    }
+	}
+
+	
+
+
+
+
+
+
+
+	
 	@PostMapping("/add")
 	public ResponseEntity<?> add(@RequestBody Order order) {
 	    if (order.getItemId() != null && 
