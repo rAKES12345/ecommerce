@@ -16,6 +16,7 @@ import com.ecommerce.ecommerce.services.DelivererForgotPassword;
 import com.ecommerce.ecommerce.services.DelivererLogin;
 import com.ecommerce.ecommerce.services.DelivererRegister;
 import com.ecommerce.ecommerce.services.GetAllDeliveries;
+import com.ecommerce.ecommerce.services.GetDelivererDeliveries;
 import com.ecommerce.ecommerce.services.GetDelivererDetailsByName;
 import com.ecommerce.ecommerce.services.GetDelivererProfile;
 import com.ecommerce.ecommerce.services.GetDeliveryDetails;
@@ -51,6 +52,9 @@ public class DelivererSystem {
 
     @Autowired
     private GetAllDeliveries getAllDeliveries;
+    
+    @Autowired
+    private GetDelivererDeliveries getDelivererDeliveriesService;
     
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Deliverer deliverer) {
@@ -106,17 +110,25 @@ public class DelivererSystem {
 
         String response = pickUpDeliveryService.pickDelivery(data);
 
-        if (response.startsWith("Delivery assigned")) {
             return ResponseEntity.ok(response);
-        } else {
-            return ResponseEntity.status(409).body(response); 
-        }
+       
     }
     
     @GetMapping("/getalldeliveries")
     public ResponseEntity<?> getAllDeliveries(){
     	List<DelivererDeliveries> res= getAllDeliveries.get();
     	return ResponseEntity.ok(res);
+    }
+    
+    @PostMapping("/getdelivererdeliveries")
+    public ResponseEntity<List<DelivererDeliveries>> getDelivererDeliveries(@RequestBody Map<String, String> data) {
+        String delivererId = data.get("delivererId");
+        if (delivererId == null || delivererId.isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        List<DelivererDeliveries> res = getDelivererDeliveriesService.get(delivererId);
+        return ResponseEntity.ok(res);
     }
     
     

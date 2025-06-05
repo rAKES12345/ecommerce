@@ -1,5 +1,6 @@
 package com.ecommerce.ecommerce.repo;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
@@ -10,6 +11,7 @@ public interface DelivererDeliveriesRepo extends MongoRepository<DelivererDelive
 
     // This method is inherited from MongoRepository, but explicitly writing it is okay for clarity
     Optional<DelivererDeliveries> findById(String id);
+    List<DelivererDeliveries> findByDelivererId(String delivererId);
     
 
     boolean existsByOrderIdAndDelivererId(String orderId, String delivererId);

@@ -10,8 +10,26 @@ public class Order {
 
     @Id
     private String id;
+    private String username;
+    
+    public String getUsername() {
+		return username;
+	}
 
-    private String sellerId;
+	public void setUsername(String username) {
+		this.username = username;
+	}
+	
+	private String delivereId;
+	public String getDelivereId() {
+		return delivereId;
+	}
+
+	public void setDelivereId(String delivereId) {
+		this.delivereId = delivereId;
+	}
+
+	private String sellerId;
     private LocalDate date;
     private String name;
     private String itemId;

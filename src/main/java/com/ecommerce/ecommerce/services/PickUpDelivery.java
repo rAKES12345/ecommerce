@@ -21,29 +21,32 @@ public class PickUpDelivery {
     private OrderRepo orderRepo;
 
     public String pickDelivery(DelivererDeliveries data) {
-        // Check if this delivery already exists based on orderId and delivererId
+        System.out.println("Checking exists for orderId: " + data.getOrderId() + ", delivererId: " + data.getDelivererId());
+
         boolean alreadyExists = delivererRepo.existsByOrderIdAndDelivererId(
-            data.getOrderId(), data.getDelivererId()  
+            data.getOrderId(), data.getDelivererId()
         );
 
         if (alreadyExists) {
-            return "Delivery already assigned for this order and deliverer";
+            throw new IllegalStateException("Delivery already assigned for this order and deliverer");
         }
 
-        // Fetch the order from the database
         Optional<Order> optionalOrder = orderRepo.findById(data.getOrderId());
 
         if (!optionalOrder.isPresent()) {
-            return "Order not found";
+            throw new IllegalArgumentException("Order not found");
         }
 
         Order order = optionalOrder.get();
-        order.setStatus(OrderStatus.SHIPPED);
-        orderRepo.save(order);       // Save the updated order
 
-        // Save the delivery assignment
+        order.setDelivereId(data.getDelivererId());  // Make sure this setter exists
+        order.setStatus(OrderStatus.SHIPPED);
+
+        orderRepo.save(order);
+
         DelivererDeliveries saved = delivererRepo.save(data);
 
-        return "Delivery assigned successfully with ID: " + saved.getId();
+        return saved.getId();
     }
+
 }

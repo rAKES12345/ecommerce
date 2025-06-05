@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ecommerce.ecommerce.entities.Order;
+import com.ecommerce.ecommerce.entities.User;
 import com.ecommerce.ecommerce.services.AddOrder;
 import com.ecommerce.ecommerce.services.DeleteOrder;
 import com.ecommerce.ecommerce.services.GetAllOrders;
@@ -81,22 +82,14 @@ public class OrderSystem {
 	}
 
 	
-
-
-
-
-
-
-
-	
 	@PostMapping("/add")
 	public ResponseEntity<?> add(@RequestBody Order order) {
 	    if (order.getItemId() != null && 
 	        order.getName() != null && 
+	        order.getUsername() != null && 
 	        order.getAddress()!=null &&
 	        order.getSellerId()!=null &&
 	        order.getPaymentMethod() != null) {
-
 	        String response = addOrderService.add(order);
 	        return ResponseEntity.ok(response);
 	    } else {
@@ -136,7 +129,7 @@ public class OrderSystem {
 	
 	@PostMapping("/getusersorders")
 	public ResponseEntity<?> getUsersOrders(@RequestBody Map<String, String> request) {
-	    String name = request.get("name");
+	    String name = request.get("username");
 	    if(name !=null) {
 	    List<Order> orders = getUsersOrdersService.getOrders(name);
 	   
