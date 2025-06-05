@@ -17,7 +17,7 @@ public class AdminLoginService {
     private JwtUtil jwtUtil;
 
     public Admin getAdminIfValid(String name, String password) {
-        Admin existingAdmin = adminRepo.findByName(name);
+        Admin existingAdmin = adminRepo.findByNameForLogin(name);
         if (existingAdmin != null && existingAdmin.getPassword().equals(password)) {
             return existingAdmin;
         }
