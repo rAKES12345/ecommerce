@@ -9,7 +9,7 @@ import com.ecommerce.ecommerce.entities.Admin;
 public interface AdminRepo extends MongoRepository<Admin, String> {
 
     // Find Admin by name (username)
-    Optional<Admin> findByName(String name);
+    Admin findByName(String name);
 
     // Find Admin by email
     Optional<Admin> findByEmail(String email);

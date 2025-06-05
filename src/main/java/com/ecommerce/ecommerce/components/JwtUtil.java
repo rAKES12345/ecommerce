@@ -1,11 +1,14 @@
 package com.ecommerce.ecommerce.components;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 
 import java.security.Key;
 import java.util.Date;
 
 import org.springframework.stereotype.Component;
+
+import com.ecommerce.ecommerce.entities.Admin;
 import com.ecommerce.ecommerce.entities.User;
 
 @Component
@@ -21,6 +24,15 @@ public class JwtUtil {
                 .claim("role", user.getRole())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 86400000)) // 1 day
+                .signWith(key)
+                .compact();
+    }
+    public String generateTokenForAdmin(Admin admin) {
+        return Jwts.builder()
+                .setSubject(admin.getName())
+                .claim("role", admin.getRole())
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + 86400000))
                 .signWith(key)
                 .compact();
     }

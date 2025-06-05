@@ -46,22 +46,24 @@ public class AdminSystem {
             return ResponseEntity.badRequest().body(Map.of("error", "Please enter username and password"));
         }
 
-        String token = adminLoginService.login(admin.getName(),admin.getPassword());
-        if (token == null || token.isEmpty()) {
+        Admin existingAdmin = adminLoginService.getAdminIfValid(admin.getName(), admin.getPassword());
+        if (existingAdmin == null) {
             return ResponseEntity.status(401).body(Map.of("error", "Invalid credentials"));
         }
 
-        Admin loggedInAdmin = getAdminDetailsByNameService.getAdminDetails(admin.getName());
+        String token = adminLoginService.generateToken(existingAdmin);
+
         Map<String, Object> response = Map.of(
             "token", token,
-            "user", Map.of(
-                "username", loggedInAdmin.getName(),
-                "role", loggedInAdmin.getRole()  // Make sure your Admin entity has a getRole() method or adjust accordingly
+            "admin", Map.of(
+                "name", existingAdmin.getName(),
+                "role", existingAdmin.getRole()
             )
         );
 
         return ResponseEntity.ok(response);
     }
+
 
 
    
